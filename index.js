@@ -1,5 +1,8 @@
 import express from 'express'
 import dotenv from 'dotenv';
+import cors from 'cors';
+import AuthRouter from './routes/authRouter.js'
+
 import { connectDB } from './models/db.js';
 dotenv.config();
 
@@ -9,9 +12,10 @@ const port = process.env.PORT || 8080
 
 // Middleware
 app.use(express.json());
-
+app.use(cors())
+app.use('/auth',AuthRouter)
 // Connect to MongoDB
-connectDB();
+await connectDB();
 
 app.get('/',(req,res)=>{
     res.send("Hello world");
