@@ -9,7 +9,7 @@ const ensureAuthenticated = (req,res,next)=>{
     }
     try {
         const decoded = jwt.verify(auth,process.env.JWT_SECRET)
-        req.user= decoded
+        req.user= decoded // by doing this we make a user paramter inside the req object
         next();
     } catch (error) {
         return res.json({

@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import AuthRouter from './routes/authRouter.js'
 import RoadmapRouter from './routes/RoadmapRouter.js'
+import MilestoneRouter from './routes/MilestoneRouter.js'
 
 import { connectDB } from './models/db.js';
 
@@ -22,6 +23,7 @@ await connectDB();
 //Routers
 app.use('/auth',AuthRouter)
 app.use('/roadmaps',RoadmapRouter);
+app.use('/milestone',MilestoneRouter)
 
 app.get('/',(req,res)=>{
     res.send("Hello world");
