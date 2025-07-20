@@ -30,7 +30,7 @@ export const getAllRoadmaps = async(req,res)=>{
 
 export const getRoadmapById = async(req,res)=>{
     try {
-        const roadmap = await Roadmap.findById(req.params.id); 
+        const roadmap = await Roadmap.findById(req.params.id).populate('milestones'); 
         if (!roadmap) return res.status(404).json({ message: 'Roadmap not found' });  
 
         return res.status(200).json({ roadmap });
