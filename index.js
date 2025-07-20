@@ -4,6 +4,9 @@ import cors from 'cors';
 import AuthRouter from './routes/authRouter.js'
 import RoadmapRouter from './routes/RoadmapRouter.js'
 import MilestoneRouter from './routes/MilestoneRouter.js'
+import ResourceRouter from './routes/ResourceRouter.js'
+import BookmarkRouter from './routes/BookmarkRouter.js'
+
 
 import { connectDB } from './models/db.js';
 
@@ -24,6 +27,9 @@ await connectDB();
 app.use('/auth',AuthRouter)
 app.use('/roadmaps',RoadmapRouter);
 app.use('/milestone',MilestoneRouter)
+app.use('/resource',ResourceRouter)
+// console.log('Now we will hit bookmarks router') 
+app.use('/bookmarks',BookmarkRouter)
 
 app.get('/',(req,res)=>{
     res.send("Hello world");

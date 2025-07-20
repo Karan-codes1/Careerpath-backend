@@ -1,4 +1,5 @@
 import Milestone from "../models/Milestone.js";
+import Roadmap from "../models/Roadmap.js";
 
 
 export const createMilestone = async(req,res)=>{
@@ -13,6 +14,11 @@ export const createMilestone = async(req,res)=>{
             roadmap:roadmapid,
             resources})
         await milestone.save();
+        
+        await Roadmap.findByIdAndUpdate(roadmapid,{
+            $push: { milestones : milestone._id}
+        })
+
 
         res.status(201).json({message:'Milestone created successfully',milestone}); // status 201 indicates resource has been created
     } catch (error) {
@@ -25,7 +31,7 @@ export const getMilestonesByRoadmap = async (req, res) => {
         const {roadmapid} = req.params;
         const milestones = await Milestone.find({ roadmap:roadmapid }).sort({order:1})
     
-        res.status(200).json(milestones);   
+        res.status(200).json(milestones);   // status 200 means OK. 
     } catch (error) {
          res.status(500).json({ message: 'Error fetching milestones', error: error.message });
     }
@@ -78,6 +84,11 @@ export const deleteMilestone = async(req,res)=>{
       console.log("Milestone not found or already deleted.");
       return res.status(404).json({ message: 'Milestone not found' });
     }
+        // Step : Remove milestone ID from its parent roadmap
+      await Roadmap.findByIdAndUpdate(
+      milestone.roadmap, //  milestone has a field `roadmap` 
+      { $pull: { milestones: id } } // remove the milestone ID from roadmap's milestones array
+    );
 
 // In most cases, findByIdAndDelete is preferable because:
 // It's more concise

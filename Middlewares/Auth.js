@@ -12,9 +12,10 @@ const ensureAuthenticated = (req,res,next)=>{
         req.user= decoded // by doing this we make a user paramter inside the req object
         next();
     } catch (error) {
+     
         return res.json({
             message: 'Unauthorized, JWT token is wrong or expired'
         })
     }
 }
-export default ensureAuthenticated
+export default ensureAuthenticated  
