@@ -1,6 +1,6 @@
 import express from 'express'
 import ensureAuthenticated from '../Middlewares/Auth.js';
-import { createResource, deleteResource, getResourceById, getResourcesByMilestoneId, updateResource } from '../controller/ResourceController.js';
+import { createResource, deleteResource, getResourceById, getResourcesByMilestoneId, toggleCompleteResource, updateResource } from '../controller/ResourceController.js';
 
 const router = express.Router();
 
@@ -9,6 +9,7 @@ router.get('/milestone/:milestoneId', getResourcesByMilestoneId); // Get all res
 router.get('/:id',ensureAuthenticated, getResourceById); // Get single resource by ID
 router.put('/:id',ensureAuthenticated, updateResource); // Update a resource
 router.delete('/:id',ensureAuthenticated, deleteResource); // Delete a resource
+router.post('/:resourceId/toggle-complete',ensureAuthenticated,toggleCompleteResource)
 
 
 export default router

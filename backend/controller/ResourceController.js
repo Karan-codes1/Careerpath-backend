@@ -1,5 +1,7 @@
 import Milestone from "../models/Milestone.js";
 import Resource from "../models/Resource.js";
+import User from "../models/User.js";
+
 
 export const createResource = async(req,res)=>{
     try {
@@ -77,3 +79,49 @@ export const deleteResource = async (req, res) => {
     res.status(500).json({ error: 'Failed to delete resource', message: error.message });
   }
 };
+
+
+export const toggleCompleteResource = async(req,res)=>{
+  try {
+    const userId = req.user._id; 
+    const {resourceId} = req.params 
+    console.log("resourceId:", resourceId);
+
+
+    // Find user 
+    const user = await User.findById(userId)
+    if(!user){
+      return res.status(404).json({ message: "User not found" });
+    }
+
+        // ✅ Fallback in case completedResources is undefined
+    if (!user.completedResources) user.completedResources = [];
+    
+       const index = user.completedResources.findIndex((id) => {
+       return id.toString() === resourceId.toString();
+     });
+
+
+   if (index > -1) {
+      // Already completed → uncomplete
+      user.completedResources.splice(index, 1); 
+                                    // index,num of elements
+      await user.save();
+      return res.status(200).json({
+        message: "Resource marked as incomplete",
+        completedResources: user.completedResources,
+      });
+    } else {
+      // Not completed → mark as complete
+      user.completedResources.push(resourceId);
+      await user.save();
+      return res.status(200).json({
+        message: "Resource marked as completed",
+        completedResources: user.completedResources,
+      });
+    }
+  } catch (error) {
+    res.status(500).json({ message: "Could not toggle resource",error:error.message});
+  }
+}
+

@@ -1,26 +1,28 @@
 import Milestone from "../models/Milestone.js";
 import Roadmap from "../models/Roadmap.js";
+import User from "../models/User.js";
 
 
-export const createMilestone = async(req,res)=>{
+export const createMilestone = async (req, res) => {
     try {
-        const {title, description, order,resources} = req.body;
+        const { title, description, order, resources } = req.body;
         const { roadmapid } = req.params;
 
         const milestone = new Milestone({
             title,
             description,
             order,
-            roadmap:roadmapid,
-            resources})
+            roadmap: roadmapid,
+            resources
+        })
         await milestone.save();
-        
-        await Roadmap.findByIdAndUpdate(roadmapid,{
-            $push: { milestones : milestone._id}
+
+        await Roadmap.findByIdAndUpdate(roadmapid, {
+            $push: { milestones: milestone._id }
         })
 
 
-        res.status(201).json({message:'Milestone created successfully',milestone}); // status 201 indicates resource has been created
+        res.status(201).json({ message: 'Milestone created successfully', milestone }); // status 201 indicates resource has been created
     } catch (error) {
         res.status(500).json({ message: 'Error creating milestone', error: error.message });
     }
@@ -28,17 +30,17 @@ export const createMilestone = async(req,res)=>{
 
 export const getMilestonesByRoadmap = async (req, res) => {
     try {
-        const {roadmapid} = req.params;
-        const milestones = await Milestone.find({ roadmap:roadmapid }).sort({order:1})
-    
+        const { roadmapid } = req.params;
+        const milestones = await Milestone.find({ roadmap: roadmapid }).sort({ order: 1 })
+
         res.status(200).json(milestones);   // status 200 means OK. 
     } catch (error) {
-         res.status(500).json({ message: 'Error fetching milestones', error: error.message });
+        res.status(500).json({ message: 'Error fetching milestones', error: error.message });
     }
 
 }
 
-export const getMilestoneById = async(req, res) => {
+export const getMilestoneById = async (req, res) => {
     try {
         const { id } = req.params;
 
@@ -51,53 +53,125 @@ export const getMilestoneById = async(req, res) => {
     }
 }
 
-export const updateMilestone = async(req,res)=>{
+export const updateMilestone = async (req, res) => {
     try {
-        const {id} = req.params;
+        const { id } = req.params;
         const updatedData = req.body;
 
-        const updateMilestone = await Milestone.findByIdAndUpdate(id,updatedData,{
-            new :true,
-            runValidators:true
+        const updateMilestone = await Milestone.findByIdAndUpdate(id, updatedData, {
+            new: true,
+            runValidators: true
         })
-     
-/*
- new: true           | Return the updated document instead of the old one                  
- runValidators: true | Ensures that validation rules from the schema are applied on update */
-        
-        
-        res.status(200).json({updateMilestone}) 
+
+        /*
+         new: true           | Return the updated document instead of the old one                  
+         runValidators: true | Ensures that validation rules from the schema are applied on update */
+
+
+        res.status(200).json({ updateMilestone })
     } catch (error) {
-        res.status(500).json({message:'Error updating milestone',error:error.message})
+        res.status(500).json({ message: 'Error updating milestone', error: error.message })
     }
 }
 
-export const deleteMilestone = async(req,res)=>{
+export const deleteMilestone = async (req, res) => {
     try {
-          const { id } = req.params;
-    // console.log("Attempting to delete milestone with ID:", id);
+        const { id } = req.params;
+        // console.log("Attempting to delete milestone with ID:", id);
 
-    const milestone = await Milestone.findByIdAndDelete(id);
-    // console.log("Result from findByIdAndDelete:", milestone);
+        const milestone = await Milestone.findByIdAndDelete(id);
+        // console.log("Result from findByIdAndDelete:", milestone);
 
-    if (!milestone) {
-      console.log("Milestone not found or already deleted.");
-      return res.status(404).json({ message: 'Milestone not found' });
-    }
+        if (!milestone) {
+            console.log("Milestone not found or already deleted.");
+            return res.status(404).json({ message: 'Milestone not found' });
+        }
         // Step : Remove milestone ID from its parent roadmap
-      await Roadmap.findByIdAndUpdate(
-      milestone.roadmap, //  milestone has a field `roadmap` 
-      { $pull: { milestones: id } } // remove the milestone ID from roadmap's milestones array
-    );
+        await Roadmap.findByIdAndUpdate(
+            milestone.roadmap, //  milestone has a field `roadmap` 
+            { $pull: { milestones: id } } // remove the milestone ID from roadmap's milestones array
+        );
 
-// In most cases, findByIdAndDelete is preferable because:
-// It's more concise
-// It's atomic
-// It has the same end result
-// It's more performant (single roundtrip to database)
+        // In most cases, findByIdAndDelete is preferable because:
+        // It's more concise
+        // It's atomic
+        // It has the same end result
+        // It's more performant (single roundtrip to database)
 
         res.status(200).json({ message: 'Milestone deleted successfully' });
     } catch (error) {
-         res.status(500).json({ message: 'Error deleting milestone', error: error.message });
+        res.status(500).json({ message: 'Error deleting milestone', error: error.message });
     }
+}
+
+
+
+
+export const getCompletedMilestone = async (req, res) => {
+    try {
+        const userid = req.user._id;
+        const user = await User.findById(userid)
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' })
+        }
+
+
+        const milestones = await Milestone.find()// .find() finds all the milestones 
+        const completedMilestones = []; // empty array (no completed milestone)
+
+        const completedResourceIds = user.completedResources.map(id => id.toString());// Convert user.completedResources to string for safer comparison
+
+        for (const milestone of milestones) {
+            let isComplete = true;
+
+            for (const resourceId of milestone.resources) {
+                if (!completedResourceIds.includes(resourceId.toString())) {
+                    isComplete = false;
+                    break;
+                }
+            }
+
+            if (isComplete) {
+                completedMilestones.push(milestone._id) //Every document in MongoDB has a unique _id field (even if you don’t define it manually).
+                //milestone._id uniquely identifies that milestone in the database.
+            }
+
+        }
+        res.status(200).json({ completedMilestones })
+    } catch (error) {
+        res.status(500).json({ message: 'Milestone check error:' });
+    }
+}
+
+
+export const getMilestoneProgress = async(req,res)=>{
+    try {
+        
+        const userid = req.user._id;
+        const {milestoneId} = req.params;
+    
+        const user = await User.findById(userid);
+        if(!user){
+           return res.status(404).json({message:'User not found'});
+        }
+    
+        const milestone = await Milestone.findById(milestoneId)
+         if (!milestone) {
+            return res.status(404).json({ message: 'Milestone not found' });
+        }
+
+        const total = milestone.resources.length;
+        const completedResourceIds = user.completedResources.map((id)=> id.toString())
+
+        const completed = milestone.resources.filter((resId)=>{
+           return completedResourceIds.includes(resId.toString())
+        }).length;
+    
+        const progressInMilestone = total === 0 ? 0 : Math.round((completed/total)*100);
+
+        res.status(200).json({ progressInMilestone, completed, total});
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+
 }

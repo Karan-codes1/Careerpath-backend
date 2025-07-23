@@ -1,6 +1,6 @@
 import express from 'express'
 import ensureAuthenticated from '../Middlewares/Auth.js'
-import { createMilestone, deleteMilestone, getMilestoneById, updateMilestone,getMilestonesByRoadmap } from '../controller/MilestoneController.js';
+import { createMilestone, deleteMilestone, getMilestoneById, updateMilestone,getMilestonesByRoadmap, getCompletedMilestone, getMilestoneProgress } from '../controller/MilestoneController.js';
 
 
 
@@ -15,6 +15,8 @@ router.put('/:id',ensureAuthenticated,updateMilestone) // update milestone
 
 router.delete('/:id',ensureAuthenticated,deleteMilestone) // delete milestone
 
+router.get('/completed',ensureAuthenticated,getCompletedMilestone) // get all milestones that are completed
 
+router.get('/progress/:milestoneId',ensureAuthenticated,getMilestoneProgress)
 export default router
 
