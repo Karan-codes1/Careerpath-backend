@@ -28,7 +28,6 @@ app.use('/auth',AuthRouter)
 app.use('/roadmaps',RoadmapRouter);
 app.use('/milestone',MilestoneRouter)
 app.use('/resource',ResourceRouter)
-// console.log('Now we will hit bookmarks router') 
 app.use('/bookmarks',BookmarkRouter)
 
 app.get('/',(req,res)=>{
