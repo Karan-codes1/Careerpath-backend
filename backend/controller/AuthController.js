@@ -2,6 +2,13 @@ import bcrypt from 'bcrypt';
 import User from "../models/User.js";
 import jwt from 'jsonwebtoken';
 
+const cookieOptions = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'lax',
+  maxAge: 24 * 60 * 60 * 1000, // 1 day
+};
+
 
 export const signup = async (req, res) => {
   try {
@@ -25,8 +32,16 @@ export const signup = async (req, res) => {
       { expiresIn: '24h' }
     );
 
+    // ✅ Set the token as a cookie
+    res.cookie("token", jwtToken, cookieOptions);
+
     return res.status(201)
-      .json({ message: 'SignUp success', jwtToken, success: true })
+      .json({
+        message: 'SignUp success',
+        name: usermodel.name,
+        email: usermodel.email,
+        success: true
+      })
   } catch (err) {
     return res.status(500)
       .json({ message: 'Internal server error', success: false })
@@ -45,6 +60,7 @@ export const login = async (req, res) => {
     }
 
 
+  
     // User exist and we have to check login credentials
     const isPassEqual = await bcrypt.compare(password, user.password);
     if (!isPassEqual) {
@@ -62,10 +78,14 @@ export const login = async (req, res) => {
       { expiresIn: '24h' }
     )
 
+    
+     // ✅ Set the token as a cookie
+    res.cookie("token", jwtToken, cookieOptions);
+
+
     return res.status(200).json({
       message: "Login Success",
       success: true,
-      jwtToken,
       email,
       name: user.name
     })
