@@ -7,7 +7,8 @@ import RoadmapRouter from './routes/RoadmapRouter.js'
 import MilestoneRouter from './routes/MilestoneRouter.js'
 import ResourceRouter from './routes/ResourceRouter.js'
 import BookmarkRouter from './routes/BookmarkRouter.js'
-
+import ProfileRouter from './routes/ProfileRouter.js'
+import DashboardRouter from './routes/DashboardRouter.js'
 
 
 import { connectDB } from './models/db.js';
@@ -16,7 +17,7 @@ dotenv.config();
 
 
 const app = express()
-const port = process.env.PORT || 8080
+const port = process.env.PORT || 8080 
 
 // Middleware
 app.use(express.json());
@@ -36,6 +37,8 @@ app.use('/roadmaps',RoadmapRouter);
 app.use('/milestone',MilestoneRouter)
 app.use('/resource',ResourceRouter)
 app.use('/bookmarks',BookmarkRouter)
+app.use('/profile',ProfileRouter)
+app.use('/dashboard',DashboardRouter)
 
 app.get('/',(req,res)=>{
     res.send("Hello world");
