@@ -33,7 +33,7 @@ await connectDB();
 //Routers
 
 app.use('/auth',AuthRouter)
-app.use('/roadmaps',RoadmapRouter);
+app.use('/roadmap',RoadmapRouter);
 app.use('/milestone',MilestoneRouter)
 app.use('/resource',ResourceRouter)
 app.use('/bookmarks',BookmarkRouter)
