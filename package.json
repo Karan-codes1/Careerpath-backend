@@ -11,7 +11,9 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "@headlessui/react": "^2.2.7",
     "bcrypt": "^6.0.0",
+    "clsx": "^2.1.1",
     "cookie": "^1.0.2",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
@@ -20,6 +22,8 @@
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.16.3",
-    "parser": "^0.1.4"
+    "parser": "^0.1.4",
+    "tailwind-merge": "^3.3.1",
+    "tailwind-variants": "^2.1.0"
   }
 }

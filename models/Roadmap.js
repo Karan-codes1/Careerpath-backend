@@ -5,7 +5,18 @@ const roadmapSchema = new mongoose.Schema(
     title: { type: String, required: true, trim: true },
     description: { type: String, required: true },
     category: { type: String, required: true, trim: true },
-    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+
+    icon: { type: String, required: true, trim: true }, // e.g., 'book', 'brain', 'code'
+    duration: { type: String, required: true }, // e.g., '4 weeks', '10 hours'
+    difficulty: { 
+      type: String, 
+      enum: ['Beginner', 'Intermediate', 'Advanced'], 
+      default: 'Beginner' 
+    },
+    learners: { type: Number, default: 0 },
+    skills: [{ type: String, trim: true }],
+
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     milestones: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Milestone' }],
   },
   { timestamps: true }
