@@ -30,6 +30,7 @@ app.use(cors({
 // Connect to MongoDB
 await connectDB();
 
+
 //Routers
 
 app.use('/auth',AuthRouter)

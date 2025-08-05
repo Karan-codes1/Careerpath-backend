@@ -3,6 +3,41 @@ import Roadmap from "../models/Roadmap.js";
 import User from "../models/User.js";
 
 
+export const createMultipleMilestones = async (req, res) => {
+    try {
+        const milestones = req.body;
+        const { roadmapid } = req.params;
+
+        if (!Array.isArray(milestones) || milestones.length === 0) {
+            return res.status(400).json({ message: "Invalid input. Expected an array of milestones." });
+        }
+
+        const milestoneDocs = milestones.map((milestone) => ({
+            ...milestone,
+            roadmap: roadmapid,
+        }));
+
+        // Insert all milestones
+        const createdMilestones = await Milestone.insertMany(milestoneDocs);
+
+        // Collect milestone IDs
+        const milestoneIds = createdMilestones.map((m) => m._id);
+
+        // Update the roadmap with all milestone IDs
+        await Roadmap.findByIdAndUpdate(roadmapid, {
+            $push: { milestones: { $each: milestoneIds } },
+        });
+
+        res.status(201).json({
+            message: `${createdMilestones.length} milestones created and linked to roadmap`,
+            milestones: createdMilestones,
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Error creating milestones", error: error.message });
+    }
+};
+
+
 export const createMilestone = async (req, res) => {
     try {
         const { title, description, order, resources } = req.body;
@@ -107,7 +142,7 @@ export const deleteMilestone = async (req, res) => {
 
 
 
-export const getCompletedMilestone = async (req, res) => {
+export const getRoadmapProgress = async (req, res) => {
     try {
         const userid = req.user._id;
         const user = await User.findById(userid)
@@ -144,32 +179,32 @@ export const getCompletedMilestone = async (req, res) => {
 }
 
 
-export const getMilestoneProgress = async(req,res)=>{
+export const getMilestoneProgress = async (req, res) => {
     try {
-        
+
         const userid = req.user._id;
-        const {milestoneId} = req.params;
-    
+        const { milestoneId } = req.params;
+
         const user = await User.findById(userid);
-        if(!user){
-           return res.status(404).json({message:'User not found'});
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
         }
-    
+
         const milestone = await Milestone.findById(milestoneId)
-         if (!milestone) {
+        if (!milestone) {
             return res.status(404).json({ message: 'Milestone not found' });
         }
 
         const total = milestone.resources.length;
-        const completedResourceIds = user.completedResources.map((id)=> id.toString())
+        const completedResourceIds = user.completedResources.map((id) => id.toString())
 
-        const completed = milestone.resources.filter((resId)=>{
-           return completedResourceIds.includes(resId.toString())
+        const completed = milestone.resources.filter((resId) => {
+            return completedResourceIds.includes(resId.toString())
         }).length;
-    
-        const progressInMilestone = total === 0 ? 0 : Math.round((completed/total)*100);
 
-        res.status(200).json({ progressInMilestone, completed, total});
+        const progressInMilestone = total === 0 ? 0 : Math.round((completed / total) * 100);
+
+        res.status(200).json({ progressInMilestone, completed, total });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
