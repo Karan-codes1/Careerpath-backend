@@ -2,14 +2,15 @@ import mongoose from 'mongoose';
 
 const milestoneSchema = new mongoose.Schema(
   {
-    title: { type: String, required: true, trim: true },
+    title: { type: String, required: true },
     description: { type: String, required: true },
-    order: { type: Number, required: true }, // for ordering milestones
-    roadmap: { type: mongoose.Schema.Types.ObjectId, ref: 'Roadmap', required: true },  // ref:'Model ka name' means ref takes the model
+    order: { type: Number, required: true },
+    roadmap: { type: mongoose.Schema.Types.ObjectId, ref: 'Roadmap', required: true },
     resources: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Resource' }],
+    duration: { type: String },
+    status: { type: String, enum: ['not_started', 'in_progress', 'completed', 'locked'], default: 'not_started' },
   },
   { timestamps: true }
 );
 
-const Milestone = mongoose.models.Milestone || mongoose.model('Milestone', milestoneSchema);
-export default Milestone;
+export default mongoose.models.Milestone || mongoose.model('Milestone', milestoneSchema);

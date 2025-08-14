@@ -126,13 +126,9 @@ export const deleteMilestone = async (req, res) => {
             milestone.roadmap, //  milestone has a field `roadmap` 
             { $pull: { milestones: id } } // remove the milestone ID from roadmap's milestones array
         );
+           // findByIdAndUpdate and Delete saves a database call
 
-        // In most cases, findByIdAndDelete is preferable because:
-        // It's more concise
-        // It's atomic
-        // It has the same end result
-        // It's more performant (single roundtrip to database)
-
+           
         res.status(200).json({ message: 'Milestone deleted successfully' });
     } catch (error) {
         res.status(500).json({ message: 'Error deleting milestone', error: error.message });
