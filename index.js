@@ -9,7 +9,7 @@ import ResourceRouter from './routes/ResourceRouter.js'
 import BookmarkRouter from './routes/BookmarkRouter.js'
 import ProfileRouter from './routes/ProfileRouter.js'
 import DashboardRouter from './routes/DashboardRouter.js'
-
+import AIRouter from './routes/AIRouter.js'
 
 import { connectDB } from './models/db.js';
 
@@ -23,8 +23,8 @@ const port = process.env.PORT || 8080
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
-  origin: 'http://localhost:3000', // your frontend URL
-  credentials: true               // 👈 allow cookies
+  origin: 'http://localhost:3000', //  frontend URL
+  credentials: true               // allow cookies
 }));
 
 // Connect to MongoDB
@@ -40,6 +40,7 @@ app.use('/resource',ResourceRouter)
 app.use('/bookmarks',BookmarkRouter)
 app.use('/profile',ProfileRouter)
 app.use('/dashboard',DashboardRouter)
+app.use('/ai',AIRouter)
 
 app.get('/',(req,res)=>{
     res.send("Hello world");

@@ -14,8 +14,10 @@ const roadmapSchema = new mongoose.Schema(
       default: 'Beginner' 
     },
     learners: { type: Number, default: 0 },
-    skills: [{ type: String, trim: true }],
 
+    completionRate: { type: Number, default: 0 }, // 0 to 100 percent
+
+    skills: [{ type: String, trim: true }],
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     milestones: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Milestone' }],
   },

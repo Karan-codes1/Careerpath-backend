@@ -3,16 +3,16 @@ import Resource from "../models/Resource.js";
 import User from "../models/User.js";
 
 
-export const createResources = async (req, res) => {
+export const createMultipleResources = async (req, res) => {
   try {
     const { milestoneId } = req.params;
-    const resources = req.body.resources; // expecting an array of {title, url, type}
+    const resources = req.body; // expecting an array of {title, url, type}
     //Array.isArray checks if resources is even an array or not and resource.length ensures it is not empty
     if (!Array.isArray(resources) || resources.length === 0) {
       return res.status(400).json({ error: 'Resources must be a non-empty array' });
     }
 
-    const newResources = await Resource.insertMany(
+    const newResources = await Resource.insertMany( // Even if milestone id is not given it will be attached to the document because of the following code
       resources.map((res) => ({
         ...res,
         milestone: milestoneId,
@@ -42,8 +42,8 @@ export const getResourcesByMilestoneId = async (req, res) => {
     if (!milestone) {
       return res.status(404).json({ error: 'Milestone not found' });
     }
-    res.status(200).json({milestone, resources: milestone.resources }); // ✅ wrap inside object
-    
+    res.status(200).json({ milestone, resources: milestone.resources }); // ✅ wrap inside object
+
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch resources', message: error.message })
   }
