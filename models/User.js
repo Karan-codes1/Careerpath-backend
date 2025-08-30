@@ -6,7 +6,17 @@ const userSchema = new mongoose.Schema(
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     bookmarkedResources: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Resource' }],
-    completedResoures:[{type : mongoose.Schema.Types.ObjectId,ref:'Resource'}],
+    completedResoures: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Resource' }],
+    // In User schema
+    quizProgress: [
+      {
+        quizId: { type: mongoose.Schema.Types.ObjectId, ref: 'Quiz', required: true },
+        score: { type: Number, required: true }, // number of correct answers
+        totalQuestions: { type: Number, required: true },
+        lastAttempted: { type: Date, default: Date.now }
+      }
+    ]
+
   },
   { timestamps: true }
 );
