@@ -10,6 +10,7 @@ import BookmarkRouter from './routes/BookmarkRouter.js'
 import ProfileRouter from './routes/ProfileRouter.js'
 import DashboardRouter from './routes/DashboardRouter.js'
 import AIRouter from './routes/AIRouter.js'
+import QuizRouter from './routes/QuizRouter.js'
 
 import { connectDB } from './models/db.js';
 
@@ -41,10 +42,7 @@ app.use('/bookmarks',BookmarkRouter)
 app.use('/profile',ProfileRouter)
 app.use('/dashboard',DashboardRouter)
 app.use('/ai',AIRouter)
-
-app.get('/',(req,res)=>{
-    res.send("Hello world");
-})
+app.use('/quiz',QuizRouter)
 
 
 app.listen(port, () => {
