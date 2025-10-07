@@ -14,8 +14,9 @@ import QuizRouter from './routes/QuizRouter.js'
 
 import { connectDB } from './models/db.js';
 
-dotenv.config();
-
+if (process.env.NODE_ENV !== "production") {
+    dotenv.config(); // only load .env locally
+}
 
 const app = express()
 const port = process.env.PORT || 8080 
@@ -23,8 +24,14 @@ const port = process.env.PORT || 8080
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
+
+const allowedOrigins = [
+  'http://localhost:3000',                 // local frontend
+  'https://careerpath-frontend.vercel.app' // deployed frontend
+];
 app.use(cors({
-  origin: 'http://localhost:3000', //  frontend URL
+  origin: allowedOrigins,//  frontend URL
+
   credentials: true               // allow cookies
 }));
 
