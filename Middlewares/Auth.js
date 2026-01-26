@@ -1,25 +1,19 @@
-import jwt from "jsonwebtoken";
+import User from '../models/User.js'
 
-const ensureAuthenticated = (req, res, next) => {
-  const token = req.cookies?.token;
+const ensureAuthenticated = async (req, res, next) => {
+  const userId = req.headers['x-user-id']
 
-  if (!token) {
-    return res.status(401).json({
-      message: "Unauthorized, JWT token is required",
-      success: false
-    });
+  if (!userId) {
+    return res.status(401).json({ message: 'Unauthorized' })
   }
 
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // Attach user info to req
-    next();
-  } catch (error) {
-    return res.status(401).json({
-      message: "Unauthorized, JWT token is invalid or expired",
-      success: false
-    });
+  const user = await User.findById(userId)
+  if (!user) {
+    return res.status(401).json({ message: 'Invalid user' })
   }
-};
 
-export default ensureAuthenticated;
+  req.user = user
+  next()
+}
+
+export default ensureAuthenticated
