@@ -25,13 +25,8 @@ const port = process.env.PORT || 8080
 app.use(express.json());
 app.use(cookieParser());
 
-const allowedOrigins = [
-  'http://localhost:3000',                 // local frontend
-  'https://careerpath-frontend.vercel.app' // deployed frontend
-];
 app.use(cors({
-  origin: allowedOrigins,//  frontend URL
-
+  origin: 'http://localhost:3000', //  frontend URL
   credentials: true               // allow cookies
 }));
 
