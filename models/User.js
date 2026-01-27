@@ -4,7 +4,7 @@ const userSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
     email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+    password: { type: String ,default: null}, // null for Google users,
     bookmarkedResources: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Resource' }],
     completedResoures: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Resource' }],
     // In User schema
