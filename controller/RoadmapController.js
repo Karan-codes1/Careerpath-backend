@@ -75,8 +75,8 @@ export const getAllRoadmaps = async (req, res) => {
 export const getRoadmapWithUserProgress = async (req, res) => {
 
   const userId = req.user._id;   // Assuming you have user from auth middleware
-  const {roadmapId} = req.params;
-  
+  const { roadmapId } = req.params;
+
   try {
     // Fetch roadmap with milestones
     const roadmap = await Roadmap.findById(roadmapId).populate('milestones')
@@ -120,13 +120,13 @@ export const getRoadmapProgress = async (req, res) => {
     });
 
     if (!progress) {
-  return res.status(200).json({
-    totalMilestones,
-    remainingMilestones: totalMilestones,
-    completedMilestones: 0,
-    progressPercentage: 0,
-  });
-}
+      return res.status(200).json({
+        totalMilestones,
+        remainingMilestones: totalMilestones,
+        completedMilestones: 0,
+        progressPercentage: 0,
+      });
+    }
 
 
     const completedMilestones = progress.milestonesStatus.filter(
@@ -157,8 +157,8 @@ export const getRoadmapProgress = async (req, res) => {
 export const putMultipleMilestonesIfCompleted = async (req, res) => {
   const userId = req.user._id;
   const { roadmapId } = req.params;
-  const { milestoneId ,status} = req.body; // expects an array of milestone ObjectIds
-  
+  const { milestoneId, status } = req.body; // expects an array of milestone ObjectIds
+
   if (!milestoneId) {
     return res.status(400).json({ error: "milestoneId is required" });
   }
@@ -170,22 +170,28 @@ export const putMultipleMilestonesIfCompleted = async (req, res) => {
       progress = new Progress({
         user: userId,
         roadmap: roadmapId,
-        milestonesStatus:[{
-           milestone: milestoneId,
-          status: status || "not started",
+        milestonesStatus: [{
+          milestone: milestoneId,
+          status: status || "not_started",
           updatedAt: new Date(),
         }]
       });
     } else {
       // Find existing milestone status in array
+      const normalizeStatus = (status) => {
+        if (status === 'pending') return 'not_started'
+        if (status === 'not started') return 'not_started'
+        return status
+      }
 
-      const existing = progress.milestonesStatus.find(doc=>doc.milestone.toString()===milestoneId)
-      if(existing){
-        existing.status = status || existing.status;
-      }else{
+
+      const existing = progress.milestonesStatus.find(doc => doc.milestone.toString() === milestoneId)
+      if (existing) {
+        existing.status = normalizeStatus(status)  || existing.status;
+      } else {
         // Add new milestone status
         progress.milestonesStatus.push({
-          milestone:milestoneId,
+          milestone: milestoneId,
           status: status || "not_started",
         })
       }
@@ -199,37 +205,37 @@ export const putMultipleMilestonesIfCompleted = async (req, res) => {
   }
 };
 
-export const deleteMilestonefromProgress = async(req,res)=>{
-   try {
-     const userid = req.user._id;
-     const {roadmapid} = req.params;
-     const {milestoneid} = req.body;
-     
+export const deleteMilestonefromProgress = async (req, res) => {
+  try {
+    const userid = req.user._id;
+    const { roadmapid } = req.params;
+    const { milestoneid } = req.body;
+
     const roadmap = await Roadmap.findById(roadmapid).populate('milestones');
-    if(!roadmap){
+    if (!roadmap) {
       return res.status(404).json({ message: "Roadmap not found" });
     }
-    
 
-  
+
+
     // Roadmap exists so remove document
-    const progress = await Progress.findOne({user:userid,roadmap:roadmapid})
+    const progress = await Progress.findOne({ user: userid, roadmap: roadmapid })
     if (!progress) {
       return res.status(404).json({ message: "Progress not found" });
     }
-    
-    const milestoneStatusObj  = progress.milestonesStatus.find(doc=>doc.milestone.toString()===milestoneid)
-    
-    if(milestoneStatusObj){
+
+    const milestoneStatusObj = progress.milestonesStatus.find(doc => doc.milestone.toString() === milestoneid)
+
+    if (milestoneStatusObj) {
       milestoneStatusObj.status = "not_started";
     }
-    
 
-     // Save updated progress document
-     await progress.save();
-     return res.status(200).json({ message: "Milestone status reset to not_started" });
+
+    // Save updated progress document
+    await progress.save();
+    return res.status(200).json({ message: "Milestone status reset to not_started" });
 
   } catch (error) {
-     return res.status(500).json({ message: "Server Error", error: error.message });
+    return res.status(500).json({ message: "Server Error", error: error.message });
   }
 }
