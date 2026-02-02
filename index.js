@@ -25,10 +25,25 @@ const port = process.env.PORT || 8080
 app.use(express.json());
 app.use(cookieParser());
 
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://careerpath-frontend-ahhqb224f-karan-s-projects-b00c492a.vercel.app"
+];
+
 app.use(cors({
-  origin: 'http://localhost:3000', //  frontend URL
-  credentials: true               // allow cookies
+  origin: function (origin, callback) {
+    // allow requests with no origin (Postman, mobile apps, server-to-server)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      return callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true
 }));
+
 
 // Connect to MongoDB
 await connectDB();
