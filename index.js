@@ -31,18 +31,23 @@ const allowedOrigins = [
 ];
 
 app.use(cors({
-  origin: function (origin, callback) {
-    // allow requests with no origin (Postman, mobile apps, server-to-server)
+  origin: (origin, callback) => {
+    // allow server-to-server / SSR / Postman
     if (!origin) return callback(null, true);
 
-    if (allowedOrigins.includes(origin)) {
+    // normalize origin (remove trailing slash)
+    const normalizedOrigin = origin.replace(/\/$/, "");
+
+    if (allowedOrigins.includes(normalizedOrigin)) {
       return callback(null, true);
-    } else {
-      return callback(new Error("Not allowed by CORS"));
     }
+
+    console.error("Blocked by CORS:", origin);
+    return callback(null, false); // block unknown origins
   },
   credentials: true
 }));
+
 
 
 // Connect to MongoDB
